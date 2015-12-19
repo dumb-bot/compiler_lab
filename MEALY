@@ -1,0 +1,91 @@
+
+****MEALY MC****
+
+#include "iostream"
+#include "fstream"
+#include "cstring"
+
+using namespace std;
+
+#define X 4
+#define Y 2
+
+int main(){
+	int f;
+	int arr[10][10];
+	int i,j, init, fin_state[10], k,m, flag=0, state, stin;
+	char out_val[10][10], in_val[100], output[100];
+
+	ifstream in("input_mealy.txt");
+	
+	in>>init;
+	// cout<<init;
+
+	i=0;
+	while(1){
+		in>>f;
+		if(f==-1){
+			break;
+		}
+		fin_state[i] = f;
+		i++;
+	}
+
+	m=i;
+
+	for (i=0;i<X;i++)
+		for (j=0;j<Y;j++){
+			in>>arr[i][j];
+			in>>out_val[i][j];
+		}
+
+	cout<<"Input : \n";
+	cin>>in_val;
+
+	k = strlen(in_val);
+	state = 0;
+	for(i=0;in_val[i]!='\0';i++){
+		stin = in_val[i] - 97;
+		output[i] = out_val[state][stin];
+		state = arr[state][stin];
+		
+		if (state==-1){
+			cout<<"invalid input****Breaking***\n";
+			return 0;
+		}
+	}
+
+	k=i;
+
+	for(i=0;i<m;i++){
+		if(state == fin_state[i]){
+			flag=1;
+			break;
+		}
+	}
+
+	if (flag==1)
+	{
+		cout<<"\nOutput : ";
+		for (int i = 0; i < k; i++)
+		{
+			cout<<output[i];
+		}
+		cout<<endl;
+	}
+	else{
+		printf("NO MATCH !\n");
+	}
+	return 0;
+}
+
+----INPUT FILE----
+
+0
+3 2 -1
+0	1	2	1
+3	0	1	0
+-1	0	3	1
+3	1	-1	0
+
+
