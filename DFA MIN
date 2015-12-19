@@ -1,0 +1,144 @@
+
+***DFA MIN***
+
+#include <iostream>
+#include <sstream>
+#include <algorithm>
+#include <fstream>
+#include <stdio.h>
+#include <vector>
+using namespace std;
+
+vector<pair<int,int> >vec1;
+int same[100][100],arr[100][100];
+int trans;
+int init_state,prsnt[100][100],is_final[100],x;
+vector<int>vec2;
+int ip;
+
+int solve(int A,int B){
+    int x,y;
+    vector<int>is;
+    
+    if(same[A][B]!=0) {   
+        return same[A][B];
+    } 
+    
+    if(prsnt[A][B] || prsnt[B][A]) 
+        return 1;
+    
+    prsnt[A][B]=prsnt[B][A]=1;
+    
+    for(int i=0;i<ip;i++){
+        x=arr[A][i],y=arr[B][i];
+        int g=solve(x, y);
+
+        if(g==-1){
+            same[A][B]=-1;
+            same[B][A]=-1;
+            return -1;
+        }
+        is.push_back(g);
+    }
+    int flag=0;
+    for(int i=0;i<is.size();i++){
+        if(is[i]!=1){
+            flag=1;
+            break;
+        }
+    }
+    if(is.size()>0){
+        if(!flag) 
+            same[B][A]=same[A][B]=1;
+        else 
+            same[B][A]=same[A][B]=-1;
+    }
+    
+    return  same[A][B];
+}
+
+int main (int argc, const char * argv[])
+{
+    ifstream fin("dfamin_input.txt");
+    fin>>init_state;
+    fin>>trans;
+    fin>>x;
+    for (int i=0; i<x; i++) {
+        int y;
+        fin>>y;
+        is_final[y]=1;
+    }
+    
+    for(int i=0;i<100;i++) for(int j=0;j<100;j++) 
+        arr[i][j]=-1;
+    
+    cout<<"Tabular arr\n";
+    printf("-----------\n");
+    cout<<trans<<endl;
+    for (int i=0;i<trans; i++) {
+        fin>>x;
+        ip=max(ip,x);
+        for (int j=0; j<x; j++) {
+            int y;
+            fin>>y;
+            arr[i][j]=y;
+            cout<<arr[i][j]<<" ";
+        }
+        printf("\n");
+    }
+    
+    for(int i=0;i<100;i++){
+        if(is_final[i]){
+            for(int j=0;j<trans;j++){
+                if(!is_final[j])
+                {
+                    same[i][j]=-1;
+                    same[j][i]=-1;
+                }
+            }
+        }
+        same[i][i]=1;
+    }
+    printf("\n");
+    
+    for(int j=0;j<trans;j++){
+        for(int k=0;k<j;k++){
+            if(same[j][k]==0) 
+                solve(j,k);
+        }
+    }
+    
+    printf("\n");
+    bool check[100]={0};
+    cout<<"Same States are\n";
+    
+    for(int i=0;i<trans;i++){
+        if(!check[i]){
+            cout<<i<<" ";
+        for(int j=0;j<trans;j++){
+            if( i!=j && same[i][j]==1){
+                cout<<j<<" ";
+                check[j]=1;
+            }
+        }
+            printf("\n");
+
+        }
+    }
+    
+    return 0;
+}
+
+
+---INPUT---
+
+0 8
+1 3
+2 1 0
+2 0 2
+2 3 1
+2 3 0
+2 3 5
+2 6 4
+2 5 6
+2 6 3
