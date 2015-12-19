@@ -1,0 +1,149 @@
+****NFA 2 DFA***
+
+
+#include<iostream>
+#include<vector>
+#include<fstream>
+#include<map>
+#include<queue>
+
+using namespace std;
+
+
+int states,var;
+map<int,int> map1;
+queue<int> q;
+map<int,int>::iterator it_map;
+vector< vector<int> > vec;
+
+void nfa_dfa(){
+    int comb,pos;
+    while(!q.empty()){
+        comb = q.front();
+        q.pop();
+        pos = 0;
+        if(map1.find(comb)==map1.end()){
+            map1[comb] = ++states;
+            vector<int> vt(var,0);
+            while(comb){
+                if((comb&1)){
+                    for(int j=0;j<var;j++)
+                        vt[j] |= vec[pos][j];
+                }
+                comb = (comb>>1);
+                pos++;
+            }
+
+            for(int i=0;i<var;i++)
+                q.push(vt[i]);
+            vec.push_back(vt);
+        }
+    }
+
+}
+
+int main(){
+
+    int i,j,temp,bit,no_unst;
+    map<int, int> unst_num;
+    ifstream inp("input_nfa_bin.txt",ios::in);
+    inp >> states >> var;
+    //vector< vector<int> > vec(states, vector<int>(var,-1));
+    vec.resize(states);
+    for(i=0;i<states;i++){
+        vec[i].resize(var);
+    }
+    //we can use push_back here too.
+    map1[0] = 0;
+    temp = 1;
+    for(i=0;i<states;i++){
+        mp[temp] = i+1;
+        temp = temp<<1;
+    }
+
+    for(i=0;i<states;i++){
+        for(j=0;j<var;j++){
+            inp >> vec[i][j];
+            if(vec[i][j]!=0){
+                temp = vec[i][j];
+                while(temp%2==0) temp/=2;
+                if(temp!=1){
+                    q.push(vec[i][j]);
+                }
+            }
+        }
+    }
+    inp.close();
+    cout<<"\nGiven NFA : "<<endl;
+    cout<<"       |\t";
+    for(i=0;i<var;i++)
+    	cout<<char('a'+i)<<"\t";
+    cout<<endl;
+    for( i=0;i<states;i++){
+    	cout<<"q"<<i<<"     |\t";
+    	
+    	for (j = 0; j < var; ++j){
+    		temp = vec[i][j];
+    		if(temp){
+    			no_unst=0;
+    		   	while(temp!=0){
+    		   		bit =  temp%2;
+    		   		if(bit)
+    		   			cout<<"q"<<no_unst<<",";
+    		   		no_unst++;
+    		   		temp/=2;
+    		   	}
+    		}
+    		cout<<"\t";
+    	}
+    	cout<<endl;
+    }
+    no_unst = states+1;
+    nfa_dfa();
+
+    cout<<"\nBefor running this program make sure the input is the Binary fromat.\n";
+    cout<<"Ex: 4 is 100 thus state q2, 5 id 101 thus q2 and q0\n";
+
+    /*cout<<"\nThus all the states of DFA are:\n";
+    for(it_map=map1.begin();it_map!=map1.end();it_map++){
+            cout<<it_map->first<<endl;
+    }*/
+    cout<<"\nThe final DFA table:\n\n";
+   	cout<<"       |\t";
+    for(i=0;i<var;i++)
+    	cout<<char('a'+i)<<"\t";
+    cout<<endl;
+    //initializing the unique state number
+    unst_num[1]=0;
+    unst_num[2]=1;
+    unst_num[4]=2;
+    for( i=0;i<states;i++){
+    	cout<<"q"<<i<<"     |\t";
+    	for (j = 0; j < var; ++j){
+    		temp = vec[i][j];
+    		if(temp){
+    			if(unst_num.find(temp)!=unst_num.end()){
+    				temp=unst_num[temp];
+    			}
+    			else{
+    				unst_num[temp]=no_unst;
+    				no_unst++;
+    				temp=no_unst-1;
+    			}
+    			cout<<"q"<<temp-1<<"\t";
+    		}
+    		
+    	}
+    	cout<<endl;
+    }
+    return 0;
+}
+
+---INPUT FILE---
+
+3 2
+3 2
+4 3
+5 2
+
+
